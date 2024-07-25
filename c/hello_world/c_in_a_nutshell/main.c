@@ -1,7 +1,11 @@
-
 #include <stdio.h>
 
+double circularArea(double r);
+
+
+
+
 int main() {
-    printf("Hello, World!");
     return 0;
 }
+
