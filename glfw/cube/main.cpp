@@ -1,6 +1,6 @@
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
-#include "module.h"
+#include <string>
 #include <iostream>
 #include <fstream>
 #include <sstream>
@@ -8,6 +8,7 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/type_ptr.hpp>
 #include <glm/gtc/matrix_transform.hpp>
+#include "module.h"
 
 
 using namespace std;
@@ -17,7 +18,7 @@ using namespace std;
 #define numVBOs 2
 
 float cameraX, cameraY, cameraZ;
-float cubeLocX, cubeLocY, cubeLocz;
+float cubeLocX, cubeLocY, cubeLocZ;
 GLuint renderingProgram;
 GLuint vao[numVAOs];
 GLuint vbo[numVBOs];
@@ -31,52 +32,18 @@ glm::mat4 pMat, vMat, mMat, mvMat;
 
 void setupVertices(void){
     float vertexPositions[108] = {
-        -1.0f, -1.0f,  1.0f, // Triangle 1
-         1.0f, -1.0f,  1.0f,
-         1.0f,  1.0f,  1.0f,
-         1.0f,  1.0f,  1.0f, // Triangle 2
-        -1.0f,  1.0f,  1.0f,
-        -1.0f, -1.0f,  1.0f,
-
-        // Back face
-        -1.0f, -1.0f, -1.0f, // Triangle 1
-         1.0f, -1.0f, -1.0f,
-         1.0f,  1.0f, -1.0f,
-         1.0f,  1.0f, -1.0f, // Triangle 2
-        -1.0f,  1.0f, -1.0f,
-        -1.0f, -1.0f, -1.0f,
-
-        // Left face
-        -1.0f, -1.0f, -1.0f, // Triangle 1
-        -1.0f, -1.0f,  1.0f,
-        -1.0f,  1.0f,  1.0f,
-        -1.0f,  1.0f,  1.0f, // Triangle 2
-        -1.0f,  1.0f, -1.0f,
-        -1.0f, -1.0f, -1.0f,
-
-        // Right face
-         1.0f, -1.0f, -1.0f, // Triangle 1
-         1.0f, -1.0f,  1.0f,
-         1.0f,  1.0f,  1.0f,
-         1.0f,  1.0f,  1.0f, // Triangle 2
-         1.0f,  1.0f, -1.0f,
-         1.0f, -1.0f, -1.0f,
-
-        // Top face
-        -1.0f,  1.0f, -1.0f, // Triangle 1
-         1.0f,  1.0f, -1.0f,
-         1.0f,  1.0f,  1.0f,
-         1.0f,  1.0f,  1.0f, // Triangle 2
-        -1.0f,  1.0f,  1.0f,
-        -1.0f,  1.0f, -1.0f,
-
-        // Bottom face
-        -1.0f, -1.0f, -1.0f, // Triangle 1
-         1.0f, -1.0f, -1.0f,
-         1.0f, -1.0f,  1.0f,
-         1.0f, -1.0f,  1.0f, // Triangle 2
-        -1.0f, -1.0f,  1.0f,
-        -1.0f, -1.0f, -1.0f
+        -1.0f,  1.0f, -1.0f, -1.0f, -1.0f, -1.0f,  1.0f, -1.0f, -1.0f,
+         1.0f, -1.0f, -1.0f,  1.0f,  1.0f, -1.0f, -1.0f,  1.0f, -1.0f,
+         1.0f, -1.0f, -1.0f,  1.0f, -1.0f,  1.0f,  1.0f,  1.0f, -1.0f,
+         1.0f, -1.0f,  1.0f,  1.0f,  1.0f,  1.0f,  1.0f,  1.0f, -1.0f,
+         1.0f, -1.0f,  1.0f, -1.0f, -1.0f,  1.0f,  1.0f,  1.0f,  1.0f,
+        -1.0f, -1.0f,  1.0f, -1.0f,  1.0f,  1.0f,  1.0f,  1.0f,  1.0f,
+        -1.0f, -1.0f,  1.0f, -1.0f, -1.0f, -1.0f, -1.0f,  1.0f,  1.0f,
+        -1.0f, -1.0f, -1.0f, -1.0f,  1.0f, -1.0f, -1.0f,  1.0f,  1.0f,
+        -1.0f, -1.0f,  1.0f,  1.0f, -1.0f,  1.0f,  1.0f, -1.0f, -1.0f,
+         1.0f, -1.0f, -1.0f, -1.0f, -1.0f, -1.0f, -1.0f, -1.0f,  1.0f,
+        -1.0f,  1.0f, -1.0f,  1.0f,  1.0f, -1.0f,  1.0f,  1.0f,  1.0f,
+         1.0f,  1.0f,  1.0f, -1.0f,  1.0f,  1.0f, -1.0f,  1.0f, -1.0f,
     };
 
     glGenVertexArrays(1, vao);
@@ -97,26 +64,38 @@ void init(GLFWwindow* window) {
 
 
 void display(GLFWwindow* window, double currentTime) {
-    glClearColor(0.0, 0.0, 0.0, 1.0);
-    
     //need to init these each frame.
-    glClear(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT);
-    //glClear(GL_COLOR_BUFFER_BIT);
+    glClear(GL_DEPTH_BUFFER_BIT);
     glUseProgram(renderingProgram);
 
 
     //get the uniform variables for the MV and projection matrices
-    mvLoc = glGetUniformLocation(renderingProgram, "mv_matrix")
-    projLoc = glGetUniformLocation(renderingProgram, "proj_matrix")
+    mvLoc = glGetUniformLocation(renderingProgram, "mv_matrix");
+    projLoc = glGetUniformLocation(renderingProgram, "proj_matrix");
 
     //build perspective matrix      
     glfwGetFramebufferSize(window, &width, &height);
+    aspect = (float)width / (float)height;
+    pMat = glm::perspective(1.0472f, aspect, 0.1f, 1000.0f); //1.0472 rad = 60 deg
 
+    //build view matrix, model matrix, and model-view matrix
+    vMat = glm::translate(glm::mat4(1.0f), glm::vec3(-cameraX, -cameraY, -cameraZ));
+    mMat = glm::translate(glm::mat4(1.0f), glm::vec3(cubeLocX, cubeLocY, cubeLocZ));
+    mvMat = vMat * mMat;
 
-    //glLineWidth(30.0f);
-    //glPointSize(30.0f);
-    //glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-    glDrawArrays(GL_TRIANGLES, 0, 3);
+    //copy perspective and MV matrices  to corresponding uniform variables
+    glUniformMatrix4fv(mvLoc, 1, GL_FALSE, glm::value_ptr(mvMat));
+    glUniformMatrix4fv(projLoc, 1, GL_FALSE, glm::value_ptr(pMat));
+
+    //associateVBO with the corresponding vertex attribute in the vertex shader
+    glBindBuffer(GL_ARRAY_BUFFER, vbo[0]);
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, 0);
+    glEnableVertexAttribArray(0);
+
+    //adjust OpenGL settings and draw model
+    glEnable(GL_DEPTH_TEST);
+    glDepthFunc(GL_LEQUAL);
+    glDrawArrays(GL_TRIANGLES, 0, 36);
 }
 
 int main(void) {

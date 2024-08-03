@@ -13,6 +13,7 @@ GLuint renderingProgram;
 GLuint vao[numVAOs];
 
 
+
 void init(GLFWwindow* window) {
     renderingProgram = createShaderProgram("shaders/default.vert", "shaders/default.frag");
     //When sets of data are prepared for sending down the pipeline, they are organized into buffers.
@@ -69,5 +70,6 @@ int main(void) {
     glfwDestroyWindow(window);
     glfwTerminate();
     exit(EXIT_SUCCESS);
+
 
 }

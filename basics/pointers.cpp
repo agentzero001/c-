@@ -1,7 +1,7 @@
 #include <iostream>
 #include <cmath>
 
-using namespace std;
+using std::endl, std::cout;
 
 
 int i = 13;
@@ -11,6 +11,11 @@ int *ptr1 = &i;
 int *ptr2 = ptr1;
 int *ptr3  = werte;
 double *ptr4 = nullptr;
+
+int x;
+
+int *ptr5 = &x;
+
 
 int a;
 
@@ -33,7 +38,7 @@ int main() {
     *(obj.x) = 1;
     *(obj.y) = 2;
     
-    cout << (obj.y) << (obj.x) << endl;
+    cout << *(obj.y) << *(obj.x) << endl;
 
     return 0;
 }
