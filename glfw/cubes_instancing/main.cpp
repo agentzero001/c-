@@ -23,11 +23,11 @@ GLuint vbo[numVBOs];
 
 //allocate variables used in display() function, so that they won't need to be allocated during rendering
 
-GLuint mvLoc, projLoc;
+GLuint vLoc, tfLoc, projLoc;
 int width, height;
 float aspect;
-float tf;
-glm::mat4 pMat, vMat, tMat, mMat, rMat, mvMat;
+float timeFactor;
+glm::mat4 pMat, vMat;
 
 float ROTATION_SPEED = 1.25;
 
@@ -91,7 +91,7 @@ void setupVertices(void){
 
 void init(GLFWwindow* window) {
     renderingProgram = createShaderProgram("shaders/default.vert", "shaders/default.frag");
-    cameraX = 0.0f; cameraY = 0.0f; cameraZ = 30.0f;
+    cameraX = 0.0f; cameraY = 0.0f; cameraZ = 420.0f;
     cubeLocX = 0.0f; cubeLocY = -2.0f; cubeLocZ = 0.0f;
     setupVertices();
 }
@@ -100,56 +100,43 @@ void init(GLFWwindow* window) {
 void display(GLFWwindow* window, double currentTime) {
     //need to init these each frame.
     glClear(GL_DEPTH_BUFFER_BIT);
+    glClearColor(0.0, 0.0, 0.0, 1.0);
     glClear(GL_COLOR_BUFFER_BIT);
     glUseProgram(renderingProgram);
 
     
-    for (int i = 0; i < 24; i++) {
-        tf = currentTime + i;
 
-        tMat = glm::translate(glm::mat4(1.0f), glm::vec3(sin(0.35f * tf) * 8.0f,
-                                                        cos(0.52f * tf) * 8.0f, 
-                                                        sin(0.7f  * tf) * 8.0f));
+    projLoc = glGetUniformLocation(renderingProgram, "proj_matrix");
 
-        rMat = glm::rotate(glm::mat4(1.0f), ROTATION_SPEED * tf, glm::vec3(0.0f, 1.0f, 0.0f));
-        rMat = glm::rotate(rMat, ROTATION_SPEED * tf, glm::vec3(0.0f, 0.0f, 1.0f));
-        rMat = glm::rotate(rMat, ROTATION_SPEED * tf, glm::vec3(1.0f, 0.0f, 0.0f));
+    
+    //build perspective matrix      
+    glfwGetFramebufferSize(window, &width, &height);
+    aspect = (float)width / (float)height;
+    pMat = glm::perspective(1.0472f, aspect, 0.1f, 1000.0f); //1.0472 rad = 60 deg
 
+    //build view matrix, model matrix, and model-view matrix
+    vMat = glm::translate(glm::mat4(1.0f), glm::vec3(-cameraX, -cameraY, -cameraZ));
+    vLoc = glGetUniformLocation(renderingProgram, "v_matrix");
+    
 
-        //algebraically the mMat created here is already a monster
-        mMat = tMat * rMat;
+    //copy perspective and MV matrices  to corresponding uniform variables
 
+    glUniformMatrix4fv(vLoc, 1, GL_FALSE, glm::value_ptr(vMat));
+    timeFactor = ((float)currentTime / 2);
+    tfLoc = glGetUniformLocation(renderingProgram, "tf");
+    glUniform1f(tfLoc, (float)timeFactor);
 
-        //get the uniform variables for the MV and projection matrices
-        mvLoc = glGetUniformLocation(renderingProgram, "mv_matrix");
-        projLoc = glGetUniformLocation(renderingProgram, "proj_matrix");
+    glUniformMatrix4fv(projLoc, 1, GL_FALSE, glm::value_ptr(pMat));
 
-        
-        //build perspective matrix      
-        glfwGetFramebufferSize(window, &width, &height);
-        aspect = (float)width / (float)height;
-        pMat = glm::perspective(1.0472f, aspect, 0.1f, 1000.0f); //1.0472 rad = 60 deg
+    //associateVBO with the corresponding vertex attribute in the vertex shader
+    glBindBuffer(GL_ARRAY_BUFFER, vbo[0]);
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, 0);
+    glEnableVertexAttribArray(0);
 
-        //build view matrix, model matrix, and model-view matrix
-        vMat = glm::translate(glm::mat4(1.0f), glm::vec3(-cameraX, -cameraY, -cameraZ));
-        //mMat = glm::translate(glm::mat4(1.0f), glm::vec3(cubeLocX, cubeLocY, cubeLocZ));
-        mvMat = vMat * mMat;
-
-        //copy perspective and MV matrices  to corresponding uniform variables
-        glUniformMatrix4fv(mvLoc, 1, GL_FALSE, glm::value_ptr(mvMat));
-        glUniformMatrix4fv(projLoc, 1, GL_FALSE, glm::value_ptr(pMat));
-
-        //associateVBO with the corresponding vertex attribute in the vertex shader
-        glBindBuffer(GL_ARRAY_BUFFER, vbo[0]);
-        glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, 0);
-        glEnableVertexAttribArray(0);
-
-        //adjust OpenGL settings and draw model
-        glEnable(GL_DEPTH_TEST);
-        glDepthFunc(GL_LEQUAL);
-        glDrawArrays(GL_TRIANGLES, 0, 36);
-
-    }
+    //adjust OpenGL settings and draw model
+    glEnable(GL_DEPTH_TEST);
+    glDepthFunc(GL_LEQUAL);
+    glDrawArraysInstanced(GL_TRIANGLES, 0, 36, 100000);
     
 }
 
@@ -157,7 +144,7 @@ int main(void) {
     if (!glfwInit()) {exit(EXIT_FAILURE);}
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
-    GLFWwindow* window = glfwCreateWindow(600, 600, "program2", NULL, NULL);
+    GLFWwindow* window = glfwCreateWindow(1800, 950, "program2", NULL, NULL);
     glfwMakeContextCurrent(window);
     if (glewInit() != GLEW_OK) {exit(EXIT_FAILURE);}
     glfwSwapInterval(1);
