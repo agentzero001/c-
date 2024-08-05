@@ -9,6 +9,7 @@
 using namespace std;
 
 
+
 void printShaderLog(GLuint shader){
     int len = 0;
     int chWrittn = 0;
