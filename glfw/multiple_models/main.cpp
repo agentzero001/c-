@@ -23,11 +23,11 @@ GLuint vbo[numVBOs];
 
 //allocate variables used in display() function, so that they won't need to be allocated during rendering
 
-GLuint vLoc, tfLoc, projLoc;
+GLuint mvLoc, projLoc;
 int width, height;
 float aspect;
-float timeFactor;
-glm::mat4 pMat, vMat;
+float tf;
+glm::mat4 pMat, vMat, tMat, mMat, rMat, mvMat;
 
 float ROTATION_SPEED = 1.25;
 
@@ -91,7 +91,7 @@ void setupVertices(void){
 
 void init(GLFWwindow* window) {
     renderingProgram = createShaderProgram("shaders/default.vert", "shaders/default.frag");
-    cameraX = 0.0f; cameraY = 0.0f; cameraZ = 420.0f;
+    cameraX = 0.0f; cameraY = 0.0f; cameraZ = 10.0f;
     cubeLocX = 0.0f; cubeLocY = -2.0f; cubeLocZ = 0.0f;
     setupVertices();
 }
@@ -100,12 +100,12 @@ void init(GLFWwindow* window) {
 void display(GLFWwindow* window, double currentTime) {
     //need to init these each frame.
     glClear(GL_DEPTH_BUFFER_BIT);
-    glClearColor(0.0, 0.0, 0.0, 1.0);
     glClear(GL_COLOR_BUFFER_BIT);
     glUseProgram(renderingProgram);
 
-    
 
+    //get the uniform variables for the MV and projection matrices
+    mvLoc = glGetUniformLocation(renderingProgram, "mv_matrix");
     projLoc = glGetUniformLocation(renderingProgram, "proj_matrix");
 
     
@@ -116,15 +116,12 @@ void display(GLFWwindow* window, double currentTime) {
 
     //build view matrix, model matrix, and model-view matrix
     vMat = glm::translate(glm::mat4(1.0f), glm::vec3(-cameraX, -cameraY, -cameraZ));
-    vLoc = glGetUniformLocation(renderingProgram, "v_matrix");
-    
+
+    mMat = glm::translate(glm::mat4(1.0f), glm::vec3(cubeLocX, cubeLocY, cubeLocZ));
+    mvMat = vMat * mMat;
+
     //copy perspective and MV matrices  to corresponding uniform variables
-
-    glUniformMatrix4fv(vLoc, 1, GL_FALSE, glm::value_ptr(vMat));
-    timeFactor = ((float)currentTime / 2);
-    tfLoc = glGetUniformLocation(renderingProgram, "tf");
-    glUniform1f(tfLoc, (float)timeFactor);
-
+    glUniformMatrix4fv(mvLoc, 1, GL_FALSE, glm::value_ptr(mvMat));
     glUniformMatrix4fv(projLoc, 1, GL_FALSE, glm::value_ptr(pMat));
 
     //associateVBO with the corresponding vertex attribute in the vertex shader
@@ -135,14 +132,17 @@ void display(GLFWwindow* window, double currentTime) {
     //adjust OpenGL settings and draw model
     glEnable(GL_DEPTH_TEST);
     glDepthFunc(GL_LEQUAL);
-    glDrawArraysInstanced(GL_TRIANGLES, 0, 36, 100000);
+    glDrawArrays(GL_TRIANGLES, 0, 36);
+
+
+    
 }
 
 int main(void) {
     if (!glfwInit()) {exit(EXIT_FAILURE);}
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
-    GLFWwindow* window = glfwCreateWindow(1800, 950, "program2", NULL, NULL);
+    GLFWwindow* window = glfwCreateWindow(600, 600, "program2", NULL, NULL);
     glfwMakeContextCurrent(window);
     if (glewInit() != GLEW_OK) {exit(EXIT_FAILURE);}
     glfwSwapInterval(1);
