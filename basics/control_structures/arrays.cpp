@@ -5,7 +5,7 @@
 
 using namespace std;
 
-
+//declares array of 100 doubles
 double measured[100];
 int amount = 0;
 
