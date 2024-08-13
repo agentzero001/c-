@@ -135,7 +135,7 @@ void display(GLFWwindow* window, double currentTime) {
     //adjust OpenGL settings and draw model
     glEnable(GL_DEPTH_TEST);
     glDepthFunc(GL_LEQUAL);
-    glDrawArraysInstanced(GL_TRIANGLES, 0, 36, 10000);
+    glDrawArraysInstanced(GL_TRIANGLES, 0, 36, 100000);
 }
 
 int main(void) {
