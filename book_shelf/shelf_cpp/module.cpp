@@ -35,8 +35,7 @@ vector<Book> Shelf::saveBooks(const vector<vector<string>>& bookList) {
         if (book.size() != 5) {
             throw std::invalid_argument("Each book must have exactly 5 details: title, author, genre, height, publisher");
         }
-        
-        
+
         booksVector.emplace_back(
             book[0],                  
             book[1],                  
