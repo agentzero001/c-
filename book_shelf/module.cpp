@@ -30,22 +30,20 @@ Shelf::Shelf(const std::vector<std::vector<std::string>> &bookList)
 vector<Book> Shelf::saveBooks(const vector<vector<string>>& bookList) {
     vector<Book> booksVector;
 
-   for (const vector<string> &book : bookList) {  
+    for (const vector<string> &book : bookList) {  
         
         if (book.size() != 5) {
             throw std::invalid_argument("Each book must have exactly 5 details: title, author, genre, height, publisher");
         }
         
         
-        std::string title = book[0];
-        std::string author = book[1];
-        std::string genre = book[2];
-        double height = std::stod(book[3]);  // Convert string to double
-        std::string publisher = book[4];
-
-        
-        booksVector.emplace_back(title, author, genre, height, publisher);
-        
+        booksVector.emplace_back(
+            book[0],                  
+            book[1],                  
+            book[2],            
+            std::stod(book[3]),
+            book[4]
+            );                   
     }
     
     return booksVector;
