@@ -12,7 +12,8 @@ class Book:
         status = 'availible' if self.availible else 'check out'
         print("Title: {}, Author: {}, Genere: {}, Height: {}, Publisher: {},  Status: {}".format(self.title,
                                                                                                  self.author,
-                                                                                                 self.genere,                                                                                       self.height,
+                                                                                                 self.genere,
+                                                                                                 self.height,
                                                                                                  self.publisher,
                                                                                                  status))        
 class Shelf:
