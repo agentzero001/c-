@@ -117,7 +117,7 @@ void init(GLFWwindow* window) {
     setupVertices();
 }
 
-stack<glm::mat4> mvStack;
+std::stack<glm::mat4> mvStack;
 
 void display(GLFWwindow* window, double currentTime) {
     //need to init these each frame.

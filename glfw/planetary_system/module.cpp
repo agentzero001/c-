@@ -4,6 +4,7 @@
 #include <string>
 #include <iostream>
 #include <fstream>
+#include <glm/glm.hpp>
 #include <sstream>
 
 using namespace std;
@@ -109,3 +110,4 @@ GLuint createShaderProgram(const char *vp, const char *fp) {
 
     return vfProgram;
 }
+

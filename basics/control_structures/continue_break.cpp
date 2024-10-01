@@ -43,7 +43,7 @@ void loop3() {
 
 int main() {
     
-    loop3();
+    loop();
 
     return 0;
 }
